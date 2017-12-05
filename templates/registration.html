@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registartion Form</title>
+</head>
+<body>
+<h1>Please register </h1>
+{% for message in messages %}
+
+
+{{ message }}
+{% endfor %}
+<form method="POST" action="">
+    Enter your first name :
+    <br>
+    <input type="name" id = 'fname' name="firstname" placeholder="First name" required>
+    <br>
+     Enter your last name :
+    <br>
+    <input type="name" id = 'name' name="lastname" placeholder="Last name" required>
+    <br>
+    Email address:
+    <br>
+    <input type="email" id = 'email' name = "email" placeholder="Enter your email" required>
+    <br>
+    Password:
+    <br>
+    <input type="password" id = 'psw' name = "password" placeholder="Your password" required>
+    <br>
+<button type="submit" value="/registration">Register</button>
+</form>
+
+</body>
+</html>

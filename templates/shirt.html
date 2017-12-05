@@ -16,9 +16,11 @@
 
                 <h1><span class="price">${{ product["price"] }}</span> {{ product["name"] }}</h1>
 
-                <form target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+                <form target="" action="/login" method="GET">
                     <input type="hidden" name="cmd" value="_s-xclick">
-                    <input type="hidden" name="hosted_button_id" value="{{ product["paypal"] }}">
+                    <input type="hidden" name="price" value="{{product['price']}}">
+
+
                     <input type="hidden" name="item_name" value="{{ product["name"] }}">
                     <table>
                     <tr>
@@ -27,18 +29,45 @@
                             <label for="os0">Size</label>
                         </th>
                         <td>
-                            <select name="os0" id="os0">
+                            <select name="size" id="os0">
                                 {%  for size in product["sizes"] %}
                                     <option value="{{ size }}">{{ size }} </option>
                                 {% endfor %}
                             </select>
+                        <br>
                         </td>
+                    <br>
+
                     </tr>
+                    <th>
+
+                        <label for="os1">Quantity</label>
+
+                    </th>
+                    <td>
+                            <select name="quantity" id="os1">
+                                {%  for item in product["quantities"] %}
+                                    <option value="{{ item }}">{{ item }} </option>
+                                {% endfor %}
+                            </select>
+                        <br>
+                        </td>
+
+
+
                     </table>
+
+
+
+
+
+
                     <input type="submit" value="Add to Cart" name="submit">
                 </form>
 
-                <p class="note-designer">* All shirts are designed by Mike the Frog.</p>
+
+
+                <p class="note-designer">**All shirts are designed for your satisfaction.</p>
 
             </div>
 

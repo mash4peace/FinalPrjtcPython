@@ -1,15 +1,10 @@
 # Main file for Shirts4Mike
 
 # Import statement
-from flask import (
-    Flask,
-    render_template,
-    Markup,
-    url_for,
-    flash,
-    redirect,
-    request
-)
+from flask import  Flask,render_template,Markup, url_for,request, session, redirect
+import model as db
+import sqlite3 as sql
+
 
 import sendgrid
 from datetime import date
@@ -19,85 +14,89 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "some_really_long_random_string_here"
 
 # Get details for sendgrid details
-sendgrid_file = "sendgrid.txt"
-sendgrid_details = []
 
-with open(sendgrid_file) as f:
-    sendgrid_details = f.readlines()
-    sendgrid_details = [x.strip("\n") for x in sendgrid_details]
 
 # Global Variables
 products_info = [
     {
         "id": "101",
-        "name": "Logo Shirt, Red",
-        "img": "shirt-101.jpg",
-        "price": 18,
-        "paypal": "LNRBY7XSXS5PA",
-        "sizes": ["Small", "Medium", "Large"]
+        "name": "Bolo Shirt",
+        "img": "tshirt100.jpg",
+        "price": 100,
+
+        "sizes": ["Small", "Medium", "Large"],
+        "quantities": [1, 2, 3, 4, 5, 6]
     },
 
     {
         "id": "102",
-        "name": "Mike the Frog Shirt, Black",
-        "img": "shirt-102.jpg",
-        "price": 20,
-        "paypal": "XP8KRXHEXMQ4J",
-        "sizes": ["Small", "Medium", "Large"]
+        "name": "NoLogo Black Denim Shirt",
+        "img": "shirt102.jpg",
+        "price": 200,
+        "sizes": ["Small", "Medium", "Large"],
+        "quantities": [1, 2, 3, 4, 5, 6]
     },
 
     {
         "id": "103",
-        "name": "Mike the Frog Shirt, Blue",
-        "img": "shirt-103.jpg",
-        "price": 20,
-        "paypal": "95C659J3VZGNJ",
-        "sizes": ["Small", "Medium", "Large"]
+        "name": "Bolo Shirt, Blue",
+        "img": "shirt-105.jpg",
+        "price": 150,
+
+        "sizes": ["Small", "Medium", "Large"],
+        "quantities": [1, 2, 3, 4, 5, 6]
     },
 
     {
         "id": "104",
-        "name": "Logo Shirt, Green",
-        "img": "shirt-104.jpg",
-        "price": 18,
-        "paypal": "Z5EY4SJN64SLU",
-        "sizes": ["Small", "Medium", "Large"]
+        "name": "Bolo Shirt,Black",
+        "img": "shirt-107.jpg",
+        "price":170,
+
+        "sizes": ["Small", "Medium", "Large"],
+        "quantities": [1, 2, 3, 4, 5, 6]
     },
 
     {
         "id": "105",
-        "name": "Mike the Frog Shirt, Yellow",
-        "img": "shirt-105.jpg",
-        "price": 25,
-        "paypal": "RYAGP5EWG4V4G",
-        "sizes": ["Small", "Medium", "Large"]
+        "name": "Bolo tshirt, Blue",
+
+        "img": "shirt-103.jpg",
+        "price": 180,
+
+        "sizes": ["Small", "Medium", "Large"],
+        "quantities": [1, 2, 3, 4, 5, 6]
     },
 
     {
+
         "id": "106",
         "name": "Logo Shirt, Gray",
-        "img": "shirt-106.jpg",
-        "price": 20,
-        "paypal": "QYHDD4N4SMUKN",
+        "img": "shirt106.jpg",
+        "price": 110,
+        "quantities":[1, 2, 3,4,5,6],
         "sizes": ["Small", "Medium", "Large"]
     },
 
     {
         "id": "107",
-        "name": "Logo Shirt, Teal",
-        "img": "shirt-107.jpg",
-        "price": 20,
-        "paypal": "RSDD7RPZFPQTQ",
+        "name": "Shirt, White",
+        "img": "shirt-104.jpg",
+        "price": 250,
+        "quantities":[1, 2, 3,4,5,6],
+
         "sizes": ["Small", "Medium", "Large"]
     },
 
     {
         "id": "108",
-        "name": "Mike the Frog Shirt, Orange",
-        "img": "shirt-108.jpg",
-        "price": 25,
-        "paypal": "LFRHBPYZKHV4Y",
-        "sizes": ["Small", "Medium", "Large"]
+        "name": "Shirt, Black",
+        "img": "shirt-08.jpg",
+        "price": 130,
+
+        "sizes": ["Small", "Medium", "Large"],
+        "quantities":[1, 2, 3,4,5,6]
+
     }
 ]
 
@@ -146,7 +145,7 @@ def get_list_view_html(product):
 @app.route("/")
 def index():
     """Function for Shirts4Mike Homepage"""
-    context = {"page_title": "Shirts 4 Mike", "current_year": date.today().year}
+    context = {"page_title": "For your shirts", "current_year": date.today().year}
     counter = 0
     product_data = []
     for product in products_info:
@@ -156,66 +155,109 @@ def index():
                 Markup(get_list_view_html(product))
             )
     context["product_data"] = Markup("".join(product_data))
-    flash("This site is a demo do not buy anything")
+    #flash("This site is a demo do not buy anything")
     return render_template("index.html", **context)
 
 
 @app.route("/shirts")
 def shirts():
     """Function for the Shirts Listing Page"""
-    context = {"page_title": "Shirts 4 Mike", "current_year": date.today().year}
+    context = {"page_title": "Your Designed Shirts", "current_year": date.today().year}
     product_data = []
     for product in products_info:
         product_data.append(Markup(get_list_view_html(product)))
     context["product_data"] = Markup("".join(product_data))
-    flash("This site is a demo do not buy anything")
+   # flash("This site is a demo do not buy anything")
     return render_template("shirts.html", **context)
 
 
 @app.route("/shirt/<product_id>")
 def shirt(product_id):
     """Function for Individual Shirt Page"""
-    context = {"page_title": "Shirts 4 Mike", "current_year": date.today().year}
+    context = {"page_title": "Your design ", "current_year": date.today().year}
+    # price = request.form['price']
+    # print(price)
     my_product = ""
     for product in products_info:
         if product["id"] == product_id:
             my_product = product
     context["product"] = my_product
-    flash("This site is a demo do not buy anything")
+    #flash("This site is a demo do not buy anything")
+
+
     return render_template("shirt.html", **context)
 
 
-@app.route("/receipt")
-def receipt():
+@app.route("/login", methods=['POST', 'GET'])
+def login():
     """Function to display receipt after purchase"""
-    context = {"page_title": "Shirts 4 Mike", "current_year": date.today().year}
-    return render_template("receipt.html", **context)
+    # context = {"page_title": "Shirts 4 Mike", "current_year": date.today().year}
+    # price = int(request.form['price'])
+    # quantity = int(request.form['quantity'])
+    # total = price * quantity
+    message = None
+
+
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if db.userEixts(email) == True:
+            if db.getPassword(email) == password:
+                user = str(db.getNames(email))
+                user = user.lstrip("[(")
+
+
+                # firsname = user[0]
+                # lastname = user[1]
+                # userFullname = firsname + " " + lastname
+                # print(userFullname)
+                # print(user)
+                print(user)
+                # price = request.form['price']
+                # print(price)
+
+                session['email'] = email
+                return render_template("receipt.html", user = user, email = email)
+
+    return render_template("login.html", message=message)
 
 
 @app.route("/contact")
 def contact():
     """Function for contact page"""
-    context = {"page_title": "Shirts 4 Mike", "current_year": date.today().year}
+    context = {"page_title": "Shirts 4 you", "current_year": date.today().year}
     return render_template("contact.html", **context)
+@app.route("/receipt", methods=['get', 'post'])
+def receipt():
+    # price = request.form['price']
+    # quantity = request.form['quantity']
+    # total = int(price * quantity)
+    # print(t)
+    return  render_template("receipt.html")
 
 
-# Route to send email
-@app.route("/send", methods=['POST'])
-def send():
-    """Function to send email using sendgrid API"""
-    sendgrid_object = sendgrid.SendGridClient(
-        sendgrid_details[0], sendgrid_details[1])
-    message = sendgrid.Mail()
-    sender = request.form["email"]
-    subject = request.form["name"]
-    body = request.form["message"]
-    message.add_to("charlie.thomas@attwoodthomas.net")
-    message.set_from(sender)
-    message.set_subject(subject)
-    message.set_html(body)
-    sendgrid_object.send(message)
-    flash("Email sent.")
-    return redirect(url_for("contact"))
+
+@app.route('/registration', methods=['GET', 'POST'])
+def registration():
+    messages = []
+    if request.method == 'POST':
+        firname = request.form['firstname']
+        lastname = request.form['lastname']
+        email = request.form['email']
+        password = request.form['password']
+        if(db.userEixts(email)) == True:
+            messages.append("User with that email "+ email+" already exists")
+            messages.append("Please login with your email")
+            return render_template("registration.html", messages = messages)
+
+        #print(email)
+        else:
+            db.insertUser(firname, lastname, email, password)
+            firname = firname
+            lastname = lastname
+            return render_template("congrats.html", firstname = firname, lastname = lastname)
+    return render_template("registration.html")
+
 
 
 # Run application

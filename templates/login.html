@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="section page">
+
+        <div class="wrapper">
+
+            <h1>Thank You for your order. Your total is $ {{total }}Please sign in to comlpete your order</h1>
+
+    {% if message %}
+    {% endif %}
+    <form method="POST"  >
+        <head>
+            <link rel="import" href="registration.html">
+
+        </head>
+
+        Email:
+        <br>
+        <input type="email" name="email" placeholder="Email" required>
+        <br>
+        Password:
+        <br>
+        <input type="password" name="password" placeholder="Password" required>
+        <br>
+        <input type="submit" name = 'submit' value="submit">
+
+    </form>
+    <a href="/registration">Register</a>
+
+
+
+        </div>
+    </div>
+
+
+{% endblock %}
+
